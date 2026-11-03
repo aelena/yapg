@@ -88,10 +88,18 @@
 
       <!-- PASSPHRASE PANEL -->
       <div class="panel hidden" id="panel-phr">
-        <p class="lede small">Diceware-style, from the EFF large wordlist. Six words is about 77 bits.</p>
+        <p class="lede small">Diceware-style from a 7776-word list. Six words is about 77 bits in any language.</p>
         <div class="row">
           <label for="phr-words">Words</label>
           <input type="number" id="phr-words" min="3" max="20" value="6" />
+        </div>
+        <div class="row">
+          <label for="phr-lang">Language</label>
+          <select id="phr-lang">
+            <option value="en" selected>English (EFF)</option>
+            <option value="es">Español (dadoware-bonito)</option>
+            <option value="de">Deutsch (dys2p)</option>
+          </select>
         </div>
         <div class="row">
           <label for="phr-sep">Separator</label>
@@ -176,7 +184,10 @@
     </footer>
   </main>
 
-  <script src="wordlist.js"></script>
+  <script>const WORDLISTS = {};</script>
+  <script src="wordlist_en.js"></script>
+  <script src="wordlist_es.js"></script>
+  <script src="wordlist_de.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

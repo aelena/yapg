@@ -6,9 +6,13 @@ Endpoints (all GET, all accept `count` and `download=1`):
     /health
     /api-key?format=base64url&length=40&prefix=sk_live_
     /password?length=20&upper=1&lower=1&digits=1&symbols=1&exclude_ambiguous=0
-    /passphrase?words=6&sep=-&capitalize=0&digit=0
+    /passphrase?words=6&sep=-&lang=en&capitalize=0&digit=0
+    /pronounceable?syllables=4&capitalize=0
     /pin?length=6
     /recovery-codes?count=16&length=10&groups=2
+
+Deliberately absent: SSH/WireGuard keys, htpasswd, TOTP secrets, breach lookups.
+Those belong on the machine that will use them, not on the wire.
 """
 
 from __future__ import annotations
@@ -99,16 +103,29 @@ async def password(request: Request) -> HTTPResponse:
 @app.get("/passphrase")
 async def passphrase(request: Request) -> HTTPResponse:
     a = request.args
-    words = _int(a, "words", 6)
+    words, lang = _int(a, "words", 6), a.get("lang", "en")
+    if lang not in core.LANGS:
+        raise BadRequest(f"unknown language {lang!r}; use one of {', '.join(core.LANGS)}")
     kwargs = {
         "words": words,
         "separator": a.get("sep", "-"),
         "capitalize": _bool(a, "capitalize", False),
         "digit": _bool(a, "digit", False),
+        "lang": lang,
     }
     items = _generate(core.passphrase, _int(a, "count", 1), **kwargs)
-    bits = round(core.passphrase_entropy_bits(words), 1)
-    return _respond(request, "passphrases", items, words=words, entropy_bits=bits)
+    bits = round(core.passphrase_entropy_bits(words, lang), 1)
+    return _respond(request, "passphrases", items, words=words, lang=lang, entropy_bits=bits)
+
+
+@app.get("/pronounceable")
+async def pronounceable(request: Request) -> HTTPResponse:
+    a = request.args
+    syllables = _int(a, "syllables", 4)
+    kwargs = {"syllables": syllables, "capitalize": _bool(a, "capitalize", False)}
+    items = _generate(core.pronounceable, _int(a, "count", 1), **kwargs)
+    bits = round(core.pronounceable_entropy_bits(syllables), 1)
+    return _respond(request, "words", items, syllables=syllables, entropy_bits=bits)
 
 
 @app.get("/pin")

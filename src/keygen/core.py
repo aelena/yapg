@@ -1,8 +1,8 @@
 """Pure generators. Every function draws from `secrets` and returns a string.
 
-Nothing here does I/O, parses arguments or knows about HTTP; the CLI and the
-API are thin skins over these functions, and the web page reimplements the
-same algorithms in JavaScript.
+Nothing here does I/O beyond reading bundled wordlists, parses arguments or
+knows about HTTP; the CLI and the API are thin skins over these functions,
+and the web page reimplements the same algorithms in JavaScript.
 """
 
 from __future__ import annotations
@@ -28,12 +28,26 @@ RECOVERY_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"
 MAX_BATCH = 500
 MAX_PREFIX = 64
 
+# Diceware lists: 7776 words each. See data/WORDLISTS.md for sources and licences.
+LANGS: dict[str, str] = {
+    "en": "EFF large wordlist (CC-BY 3.0)",
+    "es": "dadoware-bonito-es (GFDL 1.3)",
+    "de": "dys2p wordlists-de (CC0)",
+}
+
+# Pronounceable mode: alternating consonant and vowel clusters.
+ONSETS = ("b", "d", "f", "g", "k", "l", "m", "n", "p", "r", "s", "t", "v", "z",
+          "br", "dr", "fr", "gr", "kr", "pr", "tr", "bl", "fl", "gl", "kl", "pl", "st", "sk", "sp")
+VOWELS = ("a", "e", "i", "o", "u", "ai", "au", "ei", "ou", "oa", "ia", "io")
+CODAS = ("", "", "", "n", "s", "r", "l", "t", "m", "k")
+
 LIMITS: dict[str, tuple[int, int]] = {
     "key_length": (8, 256),
     "password_length": (4, 128),
     "recovery_length": (6, 32),
     "passphrase_words": (3, 20),
     "pin_length": (4, 32),
+    "syllables": (2, 16),
 }
 
 
@@ -71,10 +85,12 @@ def validate_prefix(prefix: str) -> str:
 
 
 @cache
-def wordlist() -> tuple[str, ...]:
-    """The EFF large wordlist: 7776 words, 12.9 bits each, chosen for memorability."""
-    text = resources.files("keygen").joinpath("data/eff_large_wordlist.txt").read_text("utf-8")
-    return tuple(text.split())
+def wordlist(lang: str = "en") -> tuple[str, ...]:
+    """A 7776-word Diceware list, 12.9 bits per word."""
+    if lang not in LANGS:
+        raise GenerationError(f"unknown language {lang!r}; use one of {', '.join(LANGS)}")
+    path = resources.files("keygen").joinpath(f"data/wordlist_{lang}.txt")
+    return tuple(path.read_text("utf-8").split())
 
 
 # --- generators --------------------------------------------------------------
@@ -174,24 +190,47 @@ def passphrase(
     separator: str = "-",
     capitalize: bool = False,
     digit: bool = False,
+    lang: str = "en",
 ) -> str:
-    """Diceware-style passphrase from the EFF large list.
+    """Diceware-style passphrase from a bundled 7776-word list.
 
     `capitalize` title-cases each word; `digit` appends one random digit to a random
     word. Both exist to satisfy composition rules, not to add meaningful entropy.
     """
     _check_range("words", words, *LIMITS["passphrase_words"])
-    picks = [secrets.choice(wordlist()) for _ in range(words)]
+    picks = [secrets.choice(wordlist(lang)) for _ in range(words)]
     if capitalize:
-        picks = [w.capitalize() for w in picks]
+        picks = [w[:1].upper() + w[1:] for w in picks]
     if digit:
         i = secrets.randbelow(words)
         picks[i] += str(secrets.randbelow(10))
     return separator.join(picks)
 
 
-def passphrase_entropy_bits(words: int = 6) -> float:
-    return words * math.log2(len(wordlist()))
+def passphrase_entropy_bits(words: int = 6, lang: str = "en") -> float:
+    return words * math.log2(len(wordlist(lang)))
+
+
+def pronounceable(syllables: int = 4, capitalize: bool = False) -> str:
+    """Nonsense word built from onset+vowel+coda syllables: easy to say, not in any dictionary.
+
+    Roughly 11.6 bits per syllable (29 onsets x 12 vowels x 10 codas, with repeats in CODAS
+    giving the empty coda extra weight). Use for things a human must read aloud, like
+    a temporary password given over the phone.
+    """
+    _check_range("syllables", syllables, *LIMITS["syllables"])
+    word = "".join(
+        secrets.choice(ONSETS) + secrets.choice(VOWELS) + secrets.choice(CODAS)
+        for _ in range(syllables)
+    )
+    return word.capitalize() if capitalize else word
+
+
+def pronounceable_entropy_bits(syllables: int = 4) -> float:
+    # CODAS has duplicates on purpose; count distinct outcomes weighted by probability.
+    coda_probs = [CODAS.count(c) / len(CODAS) for c in set(CODAS)]
+    coda_bits = -sum(p * math.log2(p) for p in coda_probs)
+    return syllables * (math.log2(len(ONSETS)) + math.log2(len(VOWELS)) + coda_bits)
 
 
 def pin(length: int = 6) -> str:

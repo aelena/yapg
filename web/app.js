@@ -112,9 +112,10 @@ function generateRecoveryCode(length, groups = 2) {
 
 const recoveryEntropyBits = (length) => length * Math.log2(RECOVERY_ALPHABET.length);
 
-// Diceware from the EFF large list (web/wordlist.js). ~12.9 bits per word.
-function generatePassphrase({ words, separator, capitalize, digit }) {
-  let picks = Array.from({ length: words }, () => pick(WORDLIST));
+// Diceware from a 7776-word list (web/wordlist_<lang>.js). ~12.9 bits per word.
+function generatePassphrase({ words, separator, capitalize, digit, lang }) {
+  const list = WORDLISTS[lang] || WORDLISTS.en;
+  let picks = Array.from({ length: words }, () => pick(list));
   if (capitalize) picks = picks.map((w) => w[0].toUpperCase() + w.slice(1));
   if (digit) {
     const i = randInt(words);
@@ -123,7 +124,7 @@ function generatePassphrase({ words, separator, capitalize, digit }) {
   return picks.join(separator);
 }
 
-const passphraseEntropyBits = (words) => words * Math.log2(WORDLIST.length);
+const passphraseEntropyBits = (words, lang) => words * Math.log2((WORDLISTS[lang] || WORDLISTS.en).length);
 
 const generatePin = (length) => randomFromAlphabet(DIGITS, length);
 
@@ -193,11 +194,12 @@ const PANELS = {
     read: () => ({
       words: num("phr-words", 3, 20, 6),
       separator: $("phr-sep").value || "-",
+      lang: $("phr-lang").value,
       capitalize: $("phr-cap").checked,
       digit: $("phr-digit").checked,
     }),
     gen: generatePassphrase,
-    entropy: (o) => passphraseEntropyBits(o.words),
+    entropy: (o) => passphraseEntropyBits(o.words, o.lang),
   },
   pin: {
     stem: "pins",
