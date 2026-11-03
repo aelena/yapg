@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "key-generator"
+version = "0.2.0"
+description = "Cryptographically secure API keys, passwords, passphrases, PINs and recovery codes. CLI, REST API and a zero-dependency web page."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "Antonio Elena" }]
+keywords = ["password", "api-key", "passphrase", "diceware", "recovery-codes", "secrets", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+api = ["sanic>=23.6"]
+dev = ["pytest>=7.0", "ruff>=0.4", "sanic>=23.6", "sanic-testing>=23.6"]
+
+[project.scripts]
+keygen = "keygen.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/aelena/key-generator"
+Repository = "https://github.com/aelena/key-generator"
+Issues = "https://github.com/aelena/key-generator/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+keygen = ["data/*.txt"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/keygen/cli.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"

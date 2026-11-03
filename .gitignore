@@ -1,0 +1,26 @@
+# working brief and session journal stay local
+specs.md
+_memoria/
+# secrets
+.env
+.env.*
+!.env.example
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+# node
+node_modules/
+.svelte-kit/
+# tooling caches
+graft/
+.cache/
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,203 @@
+:root {
+  --bg: #0f1115;
+  --card: #1a1d24;
+  --border: #2a2f3a;
+  --text: #e8eaf0;
+  --muted: #8a91a3;
+  --accent: #6c8cff;
+  --accent-hover: #8aa3ff;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 20px;
+}
+
+header { text-align: center; margin-bottom: 32px; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+.lede { color: var(--muted); margin: 0; }
+.lede.small { font-size: 13px; margin-bottom: 16px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.tab {
+  flex: 1;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+.tab.active { background: var(--card); color: var(--text); }
+
+.panel.hidden { display: none; }
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.row label { font-size: 14px; color: var(--muted); }
+.hint { opacity: 0.6; font-size: 12px; }
+
+input[type="text"], input[type="number"], select, textarea {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+}
+.row input[type="number"], .row select { width: 180px; }
+.row input[type="text"] { width: 180px; }
+
+.checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.checks label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
+.output {
+  display: flex;
+  margin: 18px 0 12px;
+  gap: 8px;
+  align-items: stretch;
+}
+.output textarea {
+  flex: 1;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 38px;
+  max-height: 280px;
+  white-space: pre;
+  overflow: auto;
+}
+.copy {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 13px;
+  align-self: flex-start;
+  height: 38px;
+}
+.copy:hover { border-color: var(--accent); }
+.copy.copied { color: var(--good); border-color: var(--good); }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.primary {
+  flex: 1;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary:hover { background: var(--accent-hover); }
+
+.secondary {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.strength {
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.strength span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--bad);
+  transition: width 0.2s, background 0.2s;
+}
+
+footer {
+  text-align: center;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 12px;
+}
+footer code {
+  background: var(--card);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.error {
+  color: var(--bad);
+  font-size: 13px;
+  margin: -6px 0 12px;
+}
+.error.hidden { display: none; }
+.meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 12px;
+  min-height: 1em;
+}
+.tab { padding: 10px 6px; }
