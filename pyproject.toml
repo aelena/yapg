@@ -49,7 +49,7 @@ yapg = "keygen.cli:app"
 Homepage = "https://github.com/aelena/yapg"
 Repository = "https://github.com/aelena/yapg"
 Issues = "https://github.com/aelena/yapg/issues"
-"Web page" = "https://aelena.github.io/yapg/"
+"Web page" = "https://aelena.com/yapg/"
 
 [tool.setuptools.packages.find]
 where = ["src"]

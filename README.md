@@ -18,7 +18,7 @@ One set of cryptographically secure generators, three ways in:
 |---|---|---|
 | `keygen` (alias `yapg`) | A CLI you install once and keep | Python 3.12+, `typer` |
 | `keygen serve` | A stateless localhost REST API | the `[api]` extra |
-| [aelena.github.io/yapg](https://aelena.github.io/yapg/) or `web/` | A single static page, works offline, nothing leaves the browser | nothing |
+| [aelena.com/yapg](https://aelena.com/yapg/) or `web/` | A single static page, works offline, nothing leaves the browser | nothing |
 
 Every random byte comes from the operating system's CSPRNG: Python's [`secrets`](https://docs.python.org/3/library/secrets.html) on the command line, [`crypto.getRandomValues()`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues) in the browser. Nothing is logged, stored or sent anywhere, with one opt-in exception: `keygen check --hibp` sends five hex characters of a SHA-1 to Have I Been Pwned.
 
@@ -367,7 +367,7 @@ The API binds to localhost, has no authentication and no rate limiting. It is a 
 
 ## Web page
 
-[aelena.github.io/yapg](https://aelena.github.io/yapg/), or open `web/index.html`, or `keygen web`. Five tabs (API key, password, passphrase in three languages, PIN, recovery), copy and download buttons, an entropy meter. No build step, no network access; the wordlists ship inside the page.
+[aelena.com/yapg](https://aelena.com/yapg/), or open `web/index.html`, or `keygen web`. Five tabs (API key, password, passphrase in three languages, PIN, recovery), copy and download buttons, an entropy meter. No build step, no network access; the wordlists ship inside the page.
 
 The page reimplements the generators in `web/app.js` by hand; it does not call the API. Keep it in step with `src/keygen/core.py`.
 
