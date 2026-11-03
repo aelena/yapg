@@ -227,7 +227,7 @@ function updateStrength(key, bits) {
   const meta = $(`${key}-meta`);
   if (!bar) return;
   bar.style.width = Math.min(100, (bits / 128) * 100) + "%";
-  bar.style.background = bits < 50 ? "var(--bad)" : bits < 80 ? "var(--warn)" : "var(--good)";
+  bar.style.background = bits < 40 ? "var(--bad)" : bits < 64 ? "var(--warn)" : "var(--good)";
   meta.textContent = `${bits.toFixed(1)} bits of entropy (${strengthLabel(bits)})`;
 }
 
