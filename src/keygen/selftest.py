@@ -56,7 +56,14 @@ def run(samples: int = 400) -> list[Result]:
         _uniform("alnum", lambda: core.api_key("alnum", 64), core.ALNUM, samples),
         _uniform("recovery", lambda: core.recovery_code(32, 1), core.RECOVERY_ALPHABET, samples),
         _uniform("pin", lambda: core.pin(32), string.digits, samples),
-        _uniform("password", lambda: core.password(64), "".join(core.charsets()), samples),
+        # A full password is not uniform by design (one guaranteed pick per class skews the
+        # small digit class), so uniformity is checked on a single-class password instead.
+        _uniform(
+            "password",
+            lambda: core.password(64, upper=False, digits=False, symbols=False),
+            string.ascii_lowercase,
+            samples,
+        ),
     ]
 
     # Structural guarantees.
