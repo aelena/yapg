@@ -126,7 +126,106 @@ function generatePassphrase({ words, separator, capitalize, digit, lang }) {
 
 const passphraseEntropyBits = (words, lang) => words * Math.log2((WORDLISTS[lang] || WORDLISTS.en).length);
 
+// Nonsense word from onset+vowel+coda syllables. Mirrors core.pronounceable.
+const ONSETS = ["b", "d", "f", "g", "k", "l", "m", "n", "p", "r", "s", "t", "v", "z",
+  "br", "dr", "fr", "gr", "kr", "pr", "tr", "bl", "fl", "gl", "kl", "pl", "st", "sk", "sp"];
+const VOWELS = ["a", "e", "i", "o", "u", "ai", "au", "ei", "ou", "oa", "ia", "io"];
+const CODAS = ["", "", "", "n", "s", "r", "l", "t", "m", "k"];
+
+function generatePronounceable({ syllables, capitalize }) {
+  const word = Array.from({ length: syllables }, () => pick(ONSETS) + pick(VOWELS) + pick(CODAS)).join("");
+  return capitalize ? word[0].toUpperCase() + word.slice(1) : word;
+}
+
+function pronounceableEntropyBits(syllables) {
+  // CODAS has duplicates on purpose: weight distinct outcomes by probability.
+  const counts = {};
+  for (const c of CODAS) counts[c] = (counts[c] || 0) + 1;
+  const codaBits = -Object.values(counts).reduce((sum, n) => {
+    const p = n / CODAS.length;
+    return sum + p * Math.log2(p);
+  }, 0);
+  return syllables * (Math.log2(ONSETS.length) + Math.log2(VOWELS.length) + codaBits);
+}
+
 const generatePin = (length) => randomFromAlphabet(DIGITS, length);
+
+function apiKeyEntropyBits({ format, length }) {
+  if (format === "uuid") return 122;
+  return length * Math.log2({ hex: 16, base64url: 64, alnum: ALNUM.length }[format]);
+}
+
+// --- presets -----------------------------------------------------------------
+// Mirrors presets.BUILTIN in src/keygen/presets.py. The page has no user TOML.
+
+const PRESETS = {
+  "stripe": { command: "key", format: "alnum", length: 24, prefix: "sk_live_", doc: "Stripe-style secret key" },
+  "stripe-test": { command: "key", format: "alnum", length: 24, prefix: "sk_test_", doc: "Stripe-style test key" },
+  "github": { command: "key", format: "alnum", length: 36, prefix: "ghp_", doc: "GitHub-style personal access token" },
+  "api-hex": { command: "key", format: "hex", length: 64, doc: "256-bit hex token" },
+  "api-urlsafe": { command: "key", format: "base64url", length: 43, doc: "256-bit base64url token" },
+  "session": { command: "key", format: "base64url", length: 32, doc: "Session cookie value" },
+  "db": { command: "password", length: 32, symbols: false, doc: "Database password: 32 alphanumerics, safe in connection strings" },
+  "wifi": { command: "passphrase", words: 4, separator: "-", capitalize: true, doc: "WPA passphrase a guest can type" },
+  "vault": { command: "passphrase", words: 7, separator: " ", doc: "Master passphrase, about 90 bits" },
+  "phone": { command: "pronounceable", syllables: 4, capitalize: true, doc: "Temporary password you can read out loud" },
+  "pin": { command: "pin", length: 6, doc: "Six-digit PIN" },
+  "2fa-backup": { command: "recovery", length: 10, groups: 2, doc: "Recovery code, xxxxx-xxxxx" },
+};
+
+// Fill in each command's defaults so a preset reads like its CLI call.
+const PRESET_COMMANDS = {
+  key: {
+    opts: (s) => ({ format: s.format || "base64url", length: s.length || 40, prefix: s.prefix || "" }),
+    gen: generateApiKey,
+    entropy: apiKeyEntropyBits,
+  },
+  password: {
+    opts: (s) => ({
+      length: s.length || 20,
+      upper: s.upper !== false, lower: s.lower !== false, digits: s.digits !== false, symbols: s.symbols !== false,
+      excludeAmbiguous: s.exclude_ambiguous === true,
+    }),
+    gen: generatePassword,
+    entropy: passwordEntropyBits,
+  },
+  passphrase: {
+    opts: (s) => ({ words: s.words || 6, separator: s.separator ?? "-", capitalize: !!s.capitalize, digit: !!s.digit, lang: s.lang || "en" }),
+    gen: generatePassphrase,
+    entropy: (o) => passphraseEntropyBits(o.words, o.lang),
+  },
+  pronounceable: {
+    opts: (s) => ({ syllables: s.syllables || 4, capitalize: !!s.capitalize }),
+    gen: generatePronounceable,
+    entropy: (o) => pronounceableEntropyBits(o.syllables),
+  },
+  pin: {
+    opts: (s) => ({ length: s.length || 6 }),
+    gen: (o) => generatePin(o.length),
+    entropy: (o) => o.length * Math.log2(10),
+  },
+  recovery: {
+    opts: (s) => ({ length: s.length || 10, groups: s.groups || 2 }),
+    gen: (o) => generateRecoveryCode(o.length, o.groups),
+    entropy: (o) => recoveryEntropyBits(o.length),
+  },
+};
+
+function presetSpec(name) {
+  const spec = PRESETS[name];
+  if (!spec) throw new Error(`Unknown preset: ${name}`);
+  const cmd = PRESET_COMMANDS[spec.command];
+  return { cmd, opts: cmd.opts(spec) };
+}
+
+function describePreset(name) {
+  const spec = PRESETS[name];
+  const args = Object.entries(spec)
+    .filter(([k]) => k !== "command" && k !== "doc")
+    .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+    .join(" ");
+  return `keygen ${spec.command} ${args}`;
+}
 
 // --- helpers --------------------------------------------------------------
 
@@ -201,6 +300,12 @@ const PANELS = {
     gen: generatePassphrase,
     entropy: (o) => passphraseEntropyBits(o.words, o.lang),
   },
+  pro: {
+    stem: "pronounceable",
+    read: () => ({ syllables: num("pro-syllables", 2, 16, 4), capitalize: $("pro-cap").checked }),
+    gen: generatePronounceable,
+    entropy: (o) => pronounceableEntropyBits(o.syllables),
+  },
   pin: {
     stem: "pins",
     read: () => ({ length: num("pin-length", 4, 32, 6) }),
@@ -213,6 +318,12 @@ const PANELS = {
     read: () => ({ length: num("rec-length", 6, 32, 10), groups: num("rec-groups", 1, 4, 2) }),
     gen: (o) => generateRecoveryCode(o.length, o.groups),
     entropy: (o) => recoveryEntropyBits(o.length),
+  },
+  pre: {
+    stem: "preset",
+    read: () => presetSpec($("pre-name").value),
+    gen: ({ cmd, opts }) => cmd.gen(opts),
+    entropy: ({ cmd, opts }) => cmd.entropy(opts),
   },
 };
 
@@ -288,6 +399,17 @@ document.querySelectorAll(".copy").forEach((btn) => {
     }, 1200);
   });
 });
+
+// Preset picker
+{
+  const sel = $("pre-name");
+  for (const [name, spec] of Object.entries(PRESETS)) {
+    sel.appendChild(Object.assign(document.createElement("option"), { value: name, textContent: `${name}: ${spec.doc}` }));
+  }
+  const show = () => ($("pre-desc").textContent = describePreset(sel.value));
+  sel.addEventListener("change", show);
+  show();
+}
 
 // Generate one on load.
 generate("api");

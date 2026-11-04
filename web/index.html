@@ -18,8 +18,10 @@
         <button class="tab active" data-tab="api" role="tab">API Key</button>
         <button class="tab" data-tab="pwd" role="tab">Password</button>
         <button class="tab" data-tab="phr" role="tab">Passphrase</button>
+        <button class="tab" data-tab="pro" role="tab">Pronounceable</button>
         <button class="tab" data-tab="pin" role="tab">PIN</button>
         <button class="tab" data-tab="rec" role="tab">Recovery</button>
+        <button class="tab" data-tab="pre" role="tab">Presets</button>
       </div>
 
       <!-- API KEY PANEL -->
@@ -126,6 +128,33 @@
         </div>
       </div>
 
+      <!-- PRONOUNCEABLE PANEL -->
+      <div class="panel hidden" id="panel-pro">
+        <p class="lede small">Nonsense words you can read out loud. About 11.3 bits per syllable; not in any dictionary.</p>
+        <div class="row">
+          <label for="pro-syllables">Syllables</label>
+          <input type="number" id="pro-syllables" min="2" max="16" value="4" />
+        </div>
+        <div class="checks">
+          <label><input type="checkbox" id="pro-cap" /> Capitalize</label>
+        </div>
+        <div class="row">
+          <label for="pro-count">How many <span class="hint">(1–500)</span></label>
+          <input type="number" id="pro-count" min="1" max="500" value="1" />
+        </div>
+        <div class="output">
+          <textarea id="pro-output" readonly placeholder="Click generate…" rows="1"></textarea>
+          <button class="copy" data-target="pro-output" title="Copy">Copy</button>
+        </div>
+        <p class="error hidden" id="pro-error"></p>
+        <div class="strength" id="pro-strength"><span></span></div>
+        <p class="meta" id="pro-meta"></p>
+        <div class="actions">
+          <button class="primary" id="pro-generate">Generate</button>
+          <button class="secondary" id="pro-download" disabled>Download .txt</button>
+        </div>
+      </div>
+
       <!-- PIN PANEL -->
       <div class="panel hidden" id="panel-pin">
         <p class="lede small">Digits only. A PIN is a lock on a device, not a secret for the network.</p>
@@ -175,6 +204,31 @@
         <div class="actions">
           <button class="primary" id="rec-generate">Generate</button>
           <button class="secondary" id="rec-download" disabled>Download .txt</button>
+        </div>
+      </div>
+
+      <!-- PRESETS PANEL -->
+      <div class="panel hidden" id="panel-pre">
+        <p class="lede small">The CLI's built-in presets: a generator plus its arguments under one name.</p>
+        <div class="row">
+          <label for="pre-name">Preset</label>
+          <select id="pre-name"></select>
+        </div>
+        <p class="meta" id="pre-desc"></p>
+        <div class="row">
+          <label for="pre-count">How many <span class="hint">(1–500)</span></label>
+          <input type="number" id="pre-count" min="1" max="500" value="1" />
+        </div>
+        <div class="output">
+          <textarea id="pre-output" readonly placeholder="Click generate…" rows="1"></textarea>
+          <button class="copy" data-target="pre-output" title="Copy">Copy</button>
+        </div>
+        <p class="error hidden" id="pre-error"></p>
+        <div class="strength" id="pre-strength"><span></span></div>
+        <p class="meta" id="pre-meta"></p>
+        <div class="actions">
+          <button class="primary" id="pre-generate">Generate</button>
+          <button class="secondary" id="pre-download" disabled>Download .txt</button>
         </div>
       </div>
     </section>

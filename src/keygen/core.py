@@ -214,7 +214,7 @@ def passphrase_entropy_bits(words: int = 6, lang: str = "en") -> float:
 def pronounceable(syllables: int = 4, capitalize: bool = False) -> str:
     """Nonsense word built from onset+vowel+coda syllables: easy to say, not in any dictionary.
 
-    Roughly 11.6 bits per syllable (29 onsets x 12 vowels x 10 codas, with repeats in CODAS
+    Roughly 11.3 bits per syllable (29 onsets x 12 vowels x 10 codas, with repeats in CODAS
     giving the empty coda extra weight). Use for things a human must read aloud, like
     a temporary password given over the phone.
     """

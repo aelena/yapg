@@ -182,3 +182,17 @@ def test_selftest_passes():
 def test_selftest_cli():
     r = runner.invoke(app, ["selftest", "-s", "100"])
     assert r.exit_code == 0 and "passed" in r.output
+
+
+# --- web page parity -----------------------------------------------------------
+
+
+def test_web_presets_mirror_builtin():
+    """web/app.js carries a hand copy of presets.BUILTIN; every built-in must be there."""
+    from pathlib import Path
+
+    js = (Path(__file__).resolve().parents[1] / "web" / "app.js").read_text(encoding="utf-8")
+    for name, spec in presets.BUILTIN.items():
+        assert f'"{name}": {{ command: "{spec["command"]}"' in js, name
+    for group in (core.ONSETS, core.VOWELS):
+        assert all(f'"{t}"' in js for t in group)

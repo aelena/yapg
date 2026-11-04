@@ -3,8 +3,8 @@ requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "yapg"
-version = "0.3.0"
+name = "yapg-py"
+version = "0.4.0"
 description = "Yet another password generator: API keys, passwords, Diceware passphrases (en/es/de), PINs, recovery codes, TOTP, SSH/WireGuard/JWT/htpasswd material. CLI, REST API and an offline web page."
 readme = "README.md"
 license = "MIT"
@@ -49,6 +49,7 @@ yapg = "keygen.cli:app"
 Homepage = "https://github.com/aelena/yapg"
 Repository = "https://github.com/aelena/yapg"
 Issues = "https://github.com/aelena/yapg/issues"
+Changelog = "https://github.com/aelena/yapg/blob/main/CHANGELOG.md"
 "Web page" = "https://aelena.com/yapg/"
 
 [tool.setuptools.packages.find]

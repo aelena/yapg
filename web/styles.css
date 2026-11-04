@@ -42,6 +42,7 @@ h1 { margin: 0 0 8px; font-size: 28px; }
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   background: var(--bg);
   border-radius: 10px;
@@ -49,7 +50,7 @@ h1 { margin: 0 0 8px; font-size: 28px; }
   margin-bottom: 24px;
 }
 .tab {
-  flex: 1;
+  flex: 1 1 auto;
   background: transparent;
   color: var(--muted);
   border: none;

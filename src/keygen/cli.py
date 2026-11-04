@@ -180,7 +180,7 @@ def pronounceable(
     as_json: Json = False,
     entropy: Entropy = False,
 ) -> None:
-    """Nonsense words you can read out loud (about 11.6 bits per syllable)."""
+    """Nonsense words you can read out loud (about 11.3 bits per syllable)."""
     items = _run(core.pronounceable, count, syllables=syllables, capitalize=capitalize)
     bits = core.pronounceable_entropy_bits(syllables) if entropy or as_json else None
     _emit("words", items, out=out, copy=copy, as_json=as_json, entropy_bits=bits, syllables=syllables)

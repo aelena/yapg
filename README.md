@@ -28,14 +28,17 @@ Every random byte comes from the operating system's CSPRNG: Python's [`secrets`]
 
 ```bash
 # everything, as a global tool (recommended)
-uv tool install "yapg[all] @ git+https://github.com/aelena/yapg"
-
-# from a checkout
-uv tool install --editable ".[all]"
+uv tool install "yapg-py[all]"
 
 # or plain pip, into any environment
-pip install "yapg[all] @ git+https://github.com/aelena/yapg"
+pip install "yapg-py[all]"
+
+# straight from git, or from a checkout
+uv tool install "yapg-py[all] @ git+https://github.com/aelena/yapg"
+uv tool install --editable ".[all]"
 ```
+
+The distribution is `yapg-py` (plain `yapg` on PyPI belongs to an unrelated project); the import package is `keygen`.
 
 Extras, if you want less: `[api]` adds Sanic, `[infra]` adds `cryptography` and `bcrypt` for `ssh`, `wireguard` and `htpasswd`, `[qr]` adds the ASCII QR code for `totp`. The core commands have no dependency beyond Typer.
 
@@ -150,7 +153,7 @@ Grunopla
 entropy: 34.7 bits
 ```
 
-Consonant-vowel-coda syllables, about 11.6 bits each. For the password you have to say over the phone.
+Consonant-vowel-coda syllables, about 11.3 bits each. For the password you have to say over the phone.
 
 ### PINs and recovery codes
 
@@ -367,7 +370,7 @@ The API binds to localhost, has no authentication and no rate limiting. It is a 
 
 ## Web page
 
-[aelena.com/yapg](https://aelena.com/yapg/), or open `web/index.html`, or `keygen web`. Five tabs (API key, password, passphrase in three languages, PIN, recovery), copy and download buttons, an entropy meter. No build step, no network access; the wordlists ship inside the page.
+[aelena.com/yapg](https://aelena.com/yapg/), or open `web/index.html`, or `keygen web`. Seven tabs (API key, password, passphrase in three languages, pronounceable, PIN, recovery, the built-in presets), copy and download buttons, an entropy meter. No build step, no network access; the wordlists ship inside the page.
 
 The page reimplements the generators in `web/app.js` by hand; it does not call the API. Keep it in step with `src/keygen/core.py`.
 
